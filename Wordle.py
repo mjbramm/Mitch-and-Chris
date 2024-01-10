@@ -8,6 +8,7 @@ This module is the starter file for the Wordle assignment.
 import random
 from WordleDictionary import FIVE_LETTER_WORDS
 from WordleGraphics import WordleGWindow, N_COLS, N_ROWS
+import tkinter as tk
 
 # Startup code
 gw = WordleGWindow()
@@ -42,4 +43,5 @@ def enter_action(s):
 # Start-up code
 if __name__ == "__main__":
     wordle()
-
+    root = tk.Tk()  # Create a Tkinter root window
+    root.mainloop()  # Start the Tkinter event loop
