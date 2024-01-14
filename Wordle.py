@@ -17,13 +17,12 @@ the_word = random.choice(FIVE_LETTER_WORDS).upper()
 def wordle():    
     gw.add_enter_listener(enter_action)
 
-def enter_action():
-    entered_word = ''
-    for col in range(N_COLS):
-        entered_word += gw.get_square_letter(0, col)
+def enter_action(entered_word):
+    # for col in range(N_COLS):
+    #     entered_word += gw.get_square_letter(0, col)
 
-    for col in range(N_COLS):
-        gw.set_square_letter(0, col, entered_word[col])
+    # for col in range(N_COLS):
+    #     gw.set_square_letter(0, col, entered_word[col])
         
     word = the_word.upper()
     entered_word = entered_word.upper()
