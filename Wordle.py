@@ -13,6 +13,7 @@ import tkinter as tk
 # Startup code
 gw = WordleGWindow()
 the_word = random.choice(FIVE_LETTER_WORDS).upper()
+current_row = 0
 
 def wordle():    
     gw.add_enter_listener(enter_action)
@@ -23,20 +24,41 @@ def enter_action(entered_word):
 
     # for col in range(N_COLS):
     #     gw.set_square_letter(0, col, entered_word[col])
-        
+    global the_word, current_row
     word = the_word.upper()
     entered_word = entered_word.upper()
 
     if entered_word.lower() in FIVE_LETTER_WORDS:
+        #Color Functionality
         for col, letter in enumerate(entered_word):
             if letter == word[col]:
                 gw.set_square_color(0, col, '#66BB66')
-        gw.show_message("Correct Guess!")
-    else:
-        gw.show_message("Not in word list")
+                gw.set_key_color(letter, '#66BB66')
+            elif letter in word:
+                gw.set_square_color(0, col, '#CCBB66')
+                gw.set_key_color(letter, '#CCBB66')
+            else:
+                gw.set_square_color(0, col, '#999999')
+                gw.set_key_color(letter, '#999999')
+                
+        gw.show_message("Valid Try")
 
-# Start-up code
+        #Check if the word is correct
+        if entered_word == word:
+            gw.show_message("Congratulations! You guessed the word.")
+
+
+    #Backspace functionality
+    elif entered_word == "":
+        gw.show_message("")
+        if gw.get_current_row() > 0 and gw.get_current_row() < N_ROWS:
+            gw.set_current_row(gw.get_current_row() - 1)
+            gw.set_col(N_COLS - 1)
+
+    else:
+        gw.show_message("Not a valid word")
+
 if __name__ == "__main__":
     wordle()
-    root = tk.Tk()  # Create a Tkinter root window
-    root.mainloop()  # Start the Tkinter event loop
+    root = tk.Tk()
+    root.mainloop()
