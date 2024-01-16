@@ -43,12 +43,15 @@ def enter_action(entered_word):
                 
         gw.show_message("Valid Try")
 
+
+        current_row += 1
+        gw.set_current_row(current_row)
+        gw.set_the_word(random.choice(FIVE_LETTER_WORDS).upper())
+
         #Check if the word is correct - (Not working yet)
         if entered_word == word:
             gw.show_message("Congratulations! You guessed the word.")
-            current_row += 1
-            gw.set_current_row(current_row)
-            gw.set_the_word(random.choice(FIVE_LETTER_WORDS).upper())
+
 
     #Backspace functionality - (Not working Yet)
     elif entered_word == "":
@@ -56,7 +59,7 @@ def enter_action(entered_word):
         if current_row > 0 and current_row < N_ROWS:
             current_row -= 1
             gw.set_current_row(current_row)
-            gw.set_current_col(N_COLS - 1)
+            gw.set_col(N_COLS - 1)
 
     else:
         gw.show_message("Not a valid word")
