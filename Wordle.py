@@ -32,28 +32,31 @@ def enter_action(entered_word):
         #Color Functionality
         for col, letter in enumerate(entered_word):
             if letter == word[col]:
-                gw.set_square_color(0, col, '#66BB66')
+                gw.set_square_color(current_row, col, '#66BB66')
                 gw.set_key_color(letter, '#66BB66')
             elif letter in word:
-                gw.set_square_color(0, col, '#CCBB66')
+                gw.set_square_color(current_row, col, '#CCBB66')
                 gw.set_key_color(letter, '#CCBB66')
             else:
-                gw.set_square_color(0, col, '#999999')
+                gw.set_square_color(current_row, col, '#999999')
                 gw.set_key_color(letter, '#999999')
                 
         gw.show_message("Valid Try")
 
-        #Check if the word is correct
+        #Check if the word is correct - (Not working yet)
         if entered_word == word:
             gw.show_message("Congratulations! You guessed the word.")
+            current_row += 1
+            gw.set_current_row(current_row)
+            gw.set_the_word(random.choice(FIVE_LETTER_WORDS).upper())
 
-
-    #Backspace functionality
+    #Backspace functionality - (Not working Yet)
     elif entered_word == "":
         gw.show_message("")
-        if gw.get_current_row() > 0 and gw.get_current_row() < N_ROWS:
-            gw.set_current_row(gw.get_current_row() - 1)
-            gw.set_col(N_COLS - 1)
+        if current_row > 0 and current_row < N_ROWS:
+            current_row -= 1
+            gw.set_current_row(current_row)
+            gw.set_current_col(N_COLS - 1)
 
     else:
         gw.show_message("Not a valid word")
