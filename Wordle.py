@@ -65,8 +65,12 @@ def enter_action(entered_word):
 if __name__ == "__main__":
     wordle()
     root = tk.Tk()
+    # Hide the root window
+    root.withdraw()
+    gw._root.focus_force()
     root.mainloop()
 
+    
 # Fix the colors - right now it shows duplicates (if there is one e but you list two, it will show one green but the other yellow still)
     # Also need to fix it so that once the keyboard color is green, it stays that way (right now it can revert back to yellow)
 # Fix backspace. It works on the keyboard provided but not from the users keyboard
