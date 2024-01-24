@@ -9,78 +9,173 @@ import random
 from WordleDictionary import FIVE_LETTER_WORDS
 from WordleGraphics import WordleGWindow, N_COLS, N_ROWS, CORRECT_COLOR, PRESENT_COLOR, MISSING_COLOR
 import tkinter as tk
+from tkinter import simpledialog
+
+# Function that displays radio buttons in the tk window so the user can select easy mode or hard mode
+def show_radio_options():
+    root = tk.Tk()
+    root.withdraw()
+
+    result_var = tk.StringVar()
+
+    # Function that runs when the user selects 'OK'. Destroys the window and returns the option the user selected as a string
+    def on_ok():
+        result_var.set(var.get())
+        popup.destroy()
+
+    # Defines the radio options (normal or hard)
+    popup = tk.Toplevel(root)
+    popup.title("DIfficulty")
+    popup.geometry("225x100")
+    var = tk.IntVar()
+    options = [("Normal Mode", 1), ("Hard Mode", 2)]
+
+    for text, value in options:
+        tk.Radiobutton(popup, text=text, variable=var, value=value).pack(anchor="w")
+
+    # Creates a button that runs the on_ok function when pressed
+    tk.Button(popup, text="OK", command=on_ok).pack()
+
+    popup.wait_window()
+    return result_var.get()
+
 
 # Startup code (Creates Wordle Window, randomly selects a 5 letter word from the word list file, and sets the current row of the grid to 0)
-gw = WordleGWindow()
 word = random.choice(FIVE_LETTER_WORDS).upper()
 current_row = 0
 
 # The Wordle function, which is called when the program starts running
-def wordle():  
-    # Adds a function that is called when the enter key is pushed  
-    gw.add_enter_listener(enter_action)
+def wordle(mode):    
+    # This code describes what will happen when the enter key is pushed. First, the parameter it receives is the word entered into the current row of the Wordle grid
+    def enter_action(entered_word):
+        # Ensures that the_word and the current_row variables previously defined do not change 
+        global word, current_row
 
-# This code describes what will happen when the enter key is pushed. First, the parameter it receives is the word entered into the current row of the Wordle grid
-def enter_action(entered_word):
-    # Ensures that the_word and the current_row variables previously defined do not change 
-    global word, current_row
+        if mode == 1:
+            # Checks to see if the word entered by the user is in the list of valid words
+            if entered_word.lower() in FIVE_LETTER_WORDS:
+                # Creates a list copy of the word and the entered word
+                word_copy = list(word[:])
+                entered_word_copy = list(entered_word[:])
 
-    # Checks to see if the word entered by the user is in the list of valid words
-    if entered_word.lower() in FIVE_LETTER_WORDS:
-        # Creates a list copy of the word and the entered word
-        word_copy = list(word[:])
-        entered_word_copy = list(entered_word[:])
+                # Color Functionality based on letters in the randomly selected word
+                # Goes through the entered_word and checks for exact matches. Replaces correct letter with '*' in both words
+                for col, letter in enumerate(entered_word_copy):
+                    if letter == word_copy[col]:
+                        gw.set_square_color(current_row, col, CORRECT_COLOR)
+                        gw.set_key_color(letter, CORRECT_COLOR)
 
-        # Color Functionality based on letters in the randomly selected word
-        # Goes through the entered_word and checks for exact matches. Replaces correct letter with '*' in both words
-        for col, letter in enumerate(entered_word_copy):
-            if letter == word_copy[col]:
-                gw.set_square_color(current_row, col, CORRECT_COLOR)
-                gw.set_key_color(letter, CORRECT_COLOR)
-
-                word_copy[col] = '*'
-                entered_word_copy[col] = '*'
-        
-        # Goes through the entered word again and checks to see if the letter is in the word of the day and not an *
-        for col, letter in enumerate(entered_word_copy):
-            if letter in word_copy and letter != '*':
-                gw.set_square_color(current_row, col, PRESENT_COLOR)
-                gw.set_key_color(letter, PRESENT_COLOR)
-
-                # If the letter is in the word of the day, it goes through the word letter by letter until finding a match and replacing it with an '*'
-                for col, char in enumerate(word_copy):
-                    if (char == letter):
-                        word_copy[word_copy.index(letter)] = '*'
-            elif letter != '*':
-                gw.set_square_color(current_row, col, MISSING_COLOR)
-                gw.set_key_color(letter, MISSING_COLOR)
-    
-        # Check if the word is correct. If it is, displays a message telling them they guessed the word.
-        if entered_word == word:
-            gw.show_message("Congratulations! You guessed the word.")
+                        word_copy[col] = '*'
+                        entered_word_copy[col] = '*'
                 
-        # If the word isn't correct, says "Valid Try" and moves them down to the next row (carries over the word as well)
-        else:
-            # gw.show_message("Valid Try")
-            if current_row < N_ROWS - 1:
+                # Goes through the entered word again and checks to see if the letter is in the word of the day and not an *
+                for col, letter in enumerate(entered_word_copy):
+                    if letter in word_copy and letter != '*':
+                        gw.set_square_color(current_row, col, PRESENT_COLOR)
+                        if (gw.get_key_color(letter) != CORRECT_COLOR):
+                            gw.set_key_color(letter, PRESENT_COLOR)
+
+                        # If the letter is in the word of the day, it goes through the word letter by letter until finding a match and replacing it with an '*'
+                        for col, char in enumerate(word_copy):
+                            if (char == letter):
+                                word_copy[word_copy.index(letter)] = '*'
+                    elif letter != '*':
+                        gw.set_square_color(current_row, col, MISSING_COLOR)
+                        if (gw.get_key_color(letter) != CORRECT_COLOR and gw.get_key_color(letter) != PRESENT_COLOR):
+                            gw.set_key_color(letter, MISSING_COLOR)
+            
+                # Check if the word is correct. If it is, displays a message telling them they guessed the word.
+                if entered_word == word:
+                    gw.show_message("Congratulations! You guessed the word.")
+                        
+                # If the word isn't correct, says "Valid Try" and moves them down to the next row (carries over the word as well)
+                else:
+                    # gw.show_message("Valid Try")
+                    if current_row < N_ROWS - 1:
+                        current_row += 1
+                        gw.set_current_row(current_row)
+                    else:
+                        gw.show_message("Better luck next time! The word was: " + word.upper())
+
+            # If the word entered is not in the list of valid words, gives an error message and clears the row for them to try again
+            else:
+                gw.show_message("Not a valid word")
+                current_row -= 1
                 current_row += 1
                 gw.set_current_row(current_row)
-            else:
-                gw.show_message("Better luck next time! The word was: " + word.upper())
+                gw.set_col(N_COLS - 1)
 
-    # If the word entered is not in the list of valid words, gives an error message and clears the row for them to try again
-    else:
-        gw.show_message("Not a valid word")
-        current_row -= 1
-        current_row += 1
-        gw.set_current_row(current_row)
-        gw.set_col(N_COLS - 1)
+        elif mode == 2:
+            # Checks to see if the word entered by the user is in the list of valid words
+            if entered_word.lower() in FIVE_LETTER_WORDS:
+                # Creates a list copy of the word and the entered word
+                word_copy = list(word[:])
+                entered_word_copy = list(entered_word[:])
+
+                # Color Functionality based on letters in the randomly selected word
+                # Goes through the entered_word and checks for exact matches. Replaces correct letter with '*' in both words
+                for col, letter in enumerate(entered_word_copy):
+                    if letter == word_copy[col]:
+                        gw.set_square_color(current_row, col, CORRECT_COLOR)
+                        gw.set_key_color(letter, CORRECT_COLOR)
+
+                        word_copy[col] = '*'
+                        entered_word_copy[col] = '*'
+                
+                # Goes through the entered word again and checks to see if the letter is in the word of the day and not an *
+                for col, letter in enumerate(entered_word_copy):
+                    if letter in word_copy and letter != '*':
+                        gw.set_square_color(current_row, col, PRESENT_COLOR)
+                        if (gw.get_key_color(letter) != CORRECT_COLOR):
+                            gw.set_key_color(letter, PRESENT_COLOR)
+
+                        # If the letter is in the word of the day, it goes through the word letter by letter until finding a match and replacing it with an '*'
+                        for col, char in enumerate(word_copy):
+                            if (char == letter):
+                                word_copy[word_copy.index(letter)] = '*'
+                    elif letter != '*':
+                        gw.set_square_color(current_row, col, MISSING_COLOR)
+                        if (gw.get_key_color(letter) != CORRECT_COLOR and gw.get_key_color(letter) != PRESENT_COLOR):
+                            gw.set_key_color(letter, MISSING_COLOR)
+            
+                # Check if the word is correct. If it is, displays a message telling them they guessed the word.
+                if entered_word == word:
+                    gw.show_message("Congratulations! You guessed the word.")
+                        
+                # If the word isn't correct, says "Valid Try" and moves them down to the next row (carries over the word as well)
+                else:
+                    # gw.show_message("Valid Try")
+                    if current_row < N_ROWS - 1:
+                        current_row += 1
+                        gw.set_current_row(current_row)
+                    else:
+                        gw.show_message("Better luck next time! The word was: " + word.upper())
+
+            # If the word entered is not in the list of valid words, gives an error message and clears the row for them to try again
+            else:
+                gw.show_message("Not a valid word or not using known letters")
+                current_row -= 1
+                current_row += 1
+                gw.set_current_row(current_row)
+                gw.set_col(N_COLS - 1)
+    
+    # Creates an instance of the wordle window
+    gw = WordleGWindow()
+
+    # Focuses on the first box in current row of the wordle window
+    gw._root.focus_force()
+
+    # Adds a function that is called when the enter key is pushed
+    gw.add_enter_listener(enter_action)
+    gw._root.wait_window()
 
 # If the script is the main program, it calls the wordle function and runs the GUI application using tk and then starts listening for user input using the keyboard
 if __name__ == "__main__":
-    wordle()
+    mode = show_radio_options()
+    if mode in {'1', '2'}:
+        wordle(int(mode))
     root = tk.Tk()
+    
     # Hide the root window
     root.withdraw()
-    gw._root.focus_force()
     root.mainloop()
