@@ -12,7 +12,8 @@ import tkinter as tk
 
 # Startup code (Creates Wordle Window, randomly selects a 5 letter word from the word list file, and sets the current row of the grid to 0)
 gw = WordleGWindow()
-word = random.choice(FIVE_LETTER_WORDS).upper()
+#word = random.choice(FIVE_LETTER_WORDS).upper()
+word = 'SHEET'
 current_row = 0
 
 # The Wordle function, which is called when the program starts running
@@ -27,15 +28,27 @@ def enter_action(entered_word):
 
     # Checks to see if the word entered by the user is in the list of valid words
     if entered_word.lower() in FIVE_LETTER_WORDS:
+        word_copy = list(word[:])
+        entered_word_copy = list(entered_word[:])
         # Color Functionality based on letters in the randomly selected word
-        for col, letter in enumerate(entered_word):
-            if letter == word[col]:
+
+        # Goes through the entered_word and checks for exact matches. Replaces correct letter with '*' if there are more than one of that letter in the entered word
+        for col, letter in enumerate(entered_word_copy):
+            if letter == word_copy[col]:
                 gw.set_square_color(current_row, col, CORRECT_COLOR)
                 gw.set_key_color(letter, CORRECT_COLOR)
-            elif letter in word:
+
+                word_copy[col] = '*'
+                entered_word_copy[col] = '*'
+        for col, letter in enumerate(entered_word_copy):
+            if letter in word_copy and letter != '*':
                 gw.set_square_color(current_row, col, PRESENT_COLOR)
                 gw.set_key_color(letter, PRESENT_COLOR)
-            else:
+
+                for col, char in enumerate(word_copy):
+                    if (char == letter):
+                        word_copy[word_copy.index(letter)] = '*'
+            elif letter != '*':
                 gw.set_square_color(current_row, col, MISSING_COLOR)
                 gw.set_key_color(letter, MISSING_COLOR)
     
@@ -49,7 +62,6 @@ def enter_action(entered_word):
             if current_row < N_ROWS - 1:
                 current_row += 1
                 gw.set_current_row(current_row)
-                gw.set_the_word(random.choice(FIVE_LETTER_WORDS).upper())
             else:
                 gw.show_message("Better luck next time! The word was: " + word.upper())
 
@@ -69,8 +81,3 @@ if __name__ == "__main__":
     root.withdraw()
     gw._root.focus_force()
     root.mainloop()
-
-    
-# Fix the colors - right now it shows duplicates (if there is one e but you list two, it will show one green but the other yellow still)
-    # Also need to fix it so that once the keyboard color is green, it stays that way (right now it can revert back to yellow)
-# Fix backspace. It works on the keyboard provided but not from the users keyboard
