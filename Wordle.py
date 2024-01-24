@@ -12,8 +12,7 @@ import tkinter as tk
 
 # Startup code (Creates Wordle Window, randomly selects a 5 letter word from the word list file, and sets the current row of the grid to 0)
 gw = WordleGWindow()
-#word = random.choice(FIVE_LETTER_WORDS).upper()
-word = 'SHEET'
+word = random.choice(FIVE_LETTER_WORDS).upper()
 current_row = 0
 
 # The Wordle function, which is called when the program starts running
