@@ -27,11 +27,12 @@ def enter_action(entered_word):
 
     # Checks to see if the word entered by the user is in the list of valid words
     if entered_word.lower() in FIVE_LETTER_WORDS:
+        # Creates a list copy of the word and the entered word
         word_copy = list(word[:])
         entered_word_copy = list(entered_word[:])
-        # Color Functionality based on letters in the randomly selected word
 
-        # Goes through the entered_word and checks for exact matches. Replaces correct letter with '*' if there are more than one of that letter in the entered word
+        # Color Functionality based on letters in the randomly selected word
+        # Goes through the entered_word and checks for exact matches. Replaces correct letter with '*' in both words
         for col, letter in enumerate(entered_word_copy):
             if letter == word_copy[col]:
                 gw.set_square_color(current_row, col, CORRECT_COLOR)
@@ -39,11 +40,14 @@ def enter_action(entered_word):
 
                 word_copy[col] = '*'
                 entered_word_copy[col] = '*'
+        
+        # Goes through the entered word again and checks to see if the letter is in the word of the day and not an *
         for col, letter in enumerate(entered_word_copy):
             if letter in word_copy and letter != '*':
                 gw.set_square_color(current_row, col, PRESENT_COLOR)
                 gw.set_key_color(letter, PRESENT_COLOR)
 
+                # If the letter is in the word of the day, it goes through the word letter by letter until finding a match and replacing it with an '*'
                 for col, char in enumerate(word_copy):
                     if (char == letter):
                         word_copy[word_copy.index(letter)] = '*'
