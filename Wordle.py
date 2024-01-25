@@ -38,20 +38,27 @@ def show_radio_options():
     return result_var.get()
 
 # Checks that letters in correct_letter_list are used (in the correct spots)
-def checkForLetters(entered_word, correct_letter_list, requirementsMet):
+def checkForLetters(entered_word, correct_letter_list, present_letter_list, requirementsMet):
     for col, _ in enumerate(entered_word):
         if (entered_word[col] != correct_letter_list[col] and correct_letter_list[col] != ''):
             requirementsMet = False
+    
+    # Ensures letters in present letter list are used and correct count of each letter
+    for letter in present_letter_list:
+        if (letter not in entered_word or (entered_word.count(letter) < (present_letter_list.count(letter) + correct_letter_list.count(letter)))):
+            requirementsMet = False
+
     # Returns false if letters aren't in the correct position
     return requirementsMet
 
-# Sets random word and tracks current row in grid
+# Sets random 5 letter word and tracks current row in grid
 word = random.choice(FIVE_LETTER_WORDS).upper()
 current_row = 0
 
 def wordle(mode):  
     # Blank strings to hold letters when correct ones are found (HARD MODE)
     correct_letter_list = ['', '', '', '', ''] 
+    present_letter_list = [] 
 
     # Enter key funtion, passes the word the user entered
     def enter_action(entered_word):
@@ -83,10 +90,14 @@ def wordle(mode):
                         if (gw.get_key_color(letter) != CORRECT_COLOR):
                             gw.set_key_color(letter, PRESENT_COLOR)
 
+                        # Exits the loop after this code once one letter is changed (for multiple instances of the same letters)
+                        exit_loop = False
+
                         # Finds a match in the word and replaces with * (for multiple instances of the same letters)
                         for col, char in enumerate(word_copy):
-                            if (char == letter):
+                            if (char == letter and exit_loop == False):
                                 word_copy[word_copy.index(letter)] = '*'
+                                exit_loop = True
 
                     # MISSING COLOR
                     elif (letter != '*'):
@@ -121,7 +132,7 @@ def wordle(mode):
         elif mode == 2:
             # Correct letters have to be used in the correct spot (after they've been found)
             requirementsMet = True
-            requirementsMet = checkForLetters(entered_word, correct_letter_list, requirementsMet)
+            requirementsMet = checkForLetters(entered_word, correct_letter_list, present_letter_list, requirementsMet)
 
             # In word list and meets requirements
             if (entered_word.lower() in FIVE_LETTER_WORDS and requirementsMet == True):
@@ -134,7 +145,11 @@ def wordle(mode):
                     if letter == word_copy[col]:
                         gw.set_square_color(current_row, col, CORRECT_COLOR)
                         gw.set_key_color(letter, CORRECT_COLOR)
+
+                        # Adds letter to correct letter list and removes from present_letter list if applicable
                         correct_letter_list[col] = letter
+                        if (letter in present_letter_list):
+                            present_letter_list.remove(letter)
 
                         # Replaces letter with * to track multiple instances of the same letters
                         word_copy[col] = '*'
@@ -144,14 +159,21 @@ def wordle(mode):
                     # PRESENT COLOR
                     if letter in word_copy and letter != '*':
                         gw.set_square_color(current_row, col, PRESENT_COLOR)
-
                         if (gw.get_key_color(letter) != CORRECT_COLOR):
                             gw.set_key_color(letter, PRESENT_COLOR)
 
+                        # Adds letter to present list if not already in it
+                        if (letter not in present_letter_list or (present_letter_list.count(letter) < (entered_word.count(letter) - correct_letter_list.count(letter)))):
+                            present_letter_list.append(letter)
+
+                        # Exits the loop after this code once one letter is changed (for multiple instances of the same letters)
+                        exit_loop = False
+
                         # Finds a match in the word and replaces with * (for multiple instances of the same letters)
                         for col, char in enumerate(word_copy):
-                            if (char == letter):
+                            if (char == letter and exit_loop == False):
                                 word_copy[word_copy.index(letter)] = '*'
+                                exit_loop = True
 
                     # MISSING COLOR
                     elif letter != '*':
