@@ -126,7 +126,6 @@ def wordle(mode):
                 current_row -= 1
                 current_row += 1
                 gw.set_current_row(current_row)
-                gw.set_col(N_COLS - 1)
 
         # HARD MODE
         elif mode == 2:
@@ -202,7 +201,6 @@ def wordle(mode):
                 current_row -= 1
                 current_row += 1
                 gw.set_current_row(current_row)
-                gw.set_col(N_COLS - 1)
     
     # Initializes, focuses, adds enter function
     gw = WordleGWindow()
