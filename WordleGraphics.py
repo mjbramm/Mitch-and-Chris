@@ -15,11 +15,13 @@ import tkinter
 N_ROWS = 6			# Number of rows
 N_COLS = 5			# Number of columns
 
-CORRECT_COLOR = "#2A52BE"       # Light green for correct letters
+CORRECT_COLOR = "#90EE90"       # Light green for correct letters
+COLORBLIND_CORRECT_COLOR = "#2A52BE"       # Blue for correct letters in colorblind mode
 PRESENT_COLOR = "#CCBB66"       # Brownish yellow for misplaced letters
 MISSING_COLOR = "#999999"       # Gray for letters that don't appear
 UNKNOWN_COLOR = "#FFFFFF"       # Undetermined letters are white
 KEY_COLOR = "#DDDDDD"           # Keys are colored light gray
+
 
 CANVAS_WIDTH = 500		# Width of the tkinter canvas (pixels)
 CANVAS_HEIGHT = 700		# Height of the tkinter canvas (pixels)
