@@ -69,270 +69,136 @@ def wordle(mode):
     def enter_action(entered_word):
         global word, current_row
 
-        if mode[1] == 0:
-            # NORMAL MODE
-            if mode[0] == 1:
-                # Checks to see if its a word in the list
-                if (entered_word.lower() in FIVE_LETTER_WORDS):
-                    # Creates copies of the word and users word (as lists)
-                    word_copy = list(word[:])
-                    entered_word_copy = list(entered_word[:])
+        # NORMAL MODE
+        if mode == 1:
+            # Checks to see if its a word in the list
+            if (entered_word.lower() in FIVE_LETTER_WORDS):
+                # Creates copies of the word and users word (as lists)
+                word_copy = list(word[:])
+                entered_word_copy = list(entered_word[:])
 
-                    # CORRECT COLOR
-                    for col, letter in enumerate(entered_word_copy):
-                        if (letter == word_copy[col]):
-                            gw.set_square_color(current_row, col, CORRECT_COLOR)
-                            gw.set_key_color(letter, CORRECT_COLOR)
+                # CORRECT COLOR
+                for col, letter in enumerate(entered_word_copy):
+                    if (letter == word_copy[col]):
+                        gw.set_square_color(current_row, col, correct_color)
+                        gw.set_key_color(letter, correct_color)
 
-                            # Replaces letter with * to track multiple instances of the same letters
-                            word_copy[col] = '*'
-                            entered_word_copy[col] = '*'
-                    
-                    for col, letter in enumerate(entered_word_copy):
-                        # PRESENT COLOR
-                        if (letter in word_copy and letter != '*'):
-                            gw.set_square_color(current_row, col, PRESENT_COLOR)
-
-                            if (gw.get_key_color(letter) != CORRECT_COLOR):
-                                gw.set_key_color(letter, PRESENT_COLOR)
-
-                            # Exits the loop after this code once one letter is changed (for multiple instances of the same letters)
-                            exit_loop = False
-
-                            # Finds a match in the word and replaces with * (for multiple instances of the same letters)
-                            for col, char in enumerate(word_copy):
-                                if (char == letter and exit_loop == False):
-                                    word_copy[word_copy.index(letter)] = '*'
-                                    exit_loop = True
-
-                        # MISSING COLOR
-                        elif (letter != '*'):
-                            gw.set_square_color(current_row, col, MISSING_COLOR)
-                            if (gw.get_key_color(letter) != CORRECT_COLOR and gw.get_key_color(letter) != PRESENT_COLOR):
-                                gw.set_key_color(letter, MISSING_COLOR)
+                        # Replaces letter with * to track multiple instances of the same letters
+                        word_copy[col] = '*'
+                        entered_word_copy[col] = '*'
                 
-                    # Correct
-                    if (entered_word == word):
-                        gw.show_message("Congratulations! You guessed the word.")
-                            
-                    # Incorrect
-                    else:
-                        # Next guess
-                        if (current_row < N_ROWS - 1):
-                            current_row += 1
-                            gw.set_current_row(current_row)
+                for col, letter in enumerate(entered_word_copy):
+                    # PRESENT COLOR
+                    if (letter in word_copy and letter != '*'):
+                        gw.set_square_color(current_row, col, PRESENT_COLOR)
 
-                        # No more guesses
-                        else:
-                            gw.show_message("Better luck next time! The word was: " + word.upper())
+                        if (gw.get_key_color(letter) != correct_color):
+                            gw.set_key_color(letter, PRESENT_COLOR)
 
-                # Invalid word - try again
-                else:
-                    gw.show_message("Not a valid word")
-                    current_row -= 1
-                    current_row += 1
-                    gw.set_current_row(current_row)
+                        # Exits the loop after this code once one letter is changed (for multiple instances of the same letters)
+                        exit_loop = False
 
-            # HARD MODE
-            elif mode[0] == 2:
-                # Correct letters have to be used in the correct spot (after they've been found)
-                requirementsMet = True
-                requirementsMet = checkForLetters(entered_word, correct_letter_list, present_letter_list, requirementsMet)
+                        # Finds a match in the word and replaces with * (for multiple instances of the same letters)
+                        for col, char in enumerate(word_copy):
+                            if (char == letter and exit_loop == False):
+                                word_copy[word_copy.index(letter)] = '*'
+                                exit_loop = True
 
-                # In word list and meets requirements
-                if (entered_word.lower() in FIVE_LETTER_WORDS and requirementsMet == True):
-                    # Creates copies of the word and users word (in lists)
-                    word_copy = list(word[:])
-                    entered_word_copy = list(entered_word[:])
-
-                    # CORRECT COLOR
-                    for col, letter in enumerate(entered_word_copy):
-                        if letter == word_copy[col]:
-                            gw.set_square_color(current_row, col, CORRECT_COLOR)
-                            gw.set_key_color(letter, CORRECT_COLOR)
-
-                            # Adds letter to correct letter list and removes from present_letter list if applicable
-                            correct_letter_list[col] = letter
-                            if (letter in present_letter_list):
-                                present_letter_list.remove(letter)
-
-                            # Replaces letter with * to track multiple instances of the same letters
-                            word_copy[col] = '*'
-                            entered_word_copy[col] = '*'
-                    
-                    for col, letter in enumerate(entered_word_copy):
-                        # PRESENT COLOR
-                        if letter in word_copy and letter != '*':
-                            gw.set_square_color(current_row, col, PRESENT_COLOR)
-                            if (gw.get_key_color(letter) != CORRECT_COLOR):
-                                gw.set_key_color(letter, PRESENT_COLOR)
-
-                            # Adds letter to present list if not already in it
-                            if (letter not in present_letter_list or (present_letter_list.count(letter) < (entered_word.count(letter) - correct_letter_list.count(letter)))):
-                                present_letter_list.append(letter)
-
-                            # Exits the loop after this code once one letter is changed (for multiple instances of the same letters)
-                            exit_loop = False
-
-                            # Finds a match in the word and replaces with * (for multiple instances of the same letters)
-                            for col, char in enumerate(word_copy):
-                                if (char == letter and exit_loop == False):
-                                    word_copy[word_copy.index(letter)] = '*'
-                                    exit_loop = True
-
-                        # MISSING COLOR
-                        elif letter != '*':
-                            gw.set_square_color(current_row, col, MISSING_COLOR)
-                            if (gw.get_key_color(letter) != CORRECT_COLOR and gw.get_key_color(letter) != PRESENT_COLOR):
-                                gw.set_key_color(letter, MISSING_COLOR)
-                
-                    # Correct
-                    if entered_word == word:
-                        gw.show_message("Congratulations! You guessed the word.")
-                            
-                    # Incorrect
-                    else:
-                        # Next Guess
-                        if current_row < N_ROWS - 1:
-                            current_row += 1
-                            gw.set_current_row(current_row)
+                    # MISSING COLOR
+                    elif (letter != '*'):
+                        gw.set_square_color(current_row, col, MISSING_COLOR)
+                        if (gw.get_key_color(letter) != correct_color and gw.get_key_color(letter) != PRESENT_COLOR):
+                            gw.set_key_color(letter, MISSING_COLOR)
+            
+                # Correct
+                if (entered_word == word):
+                    gw.show_message("Congratulations! You guessed the word.")
                         
-                        # No More Guesses
-                        else:
-                            gw.show_message("Better luck next time! The word was: " + word.upper())
-
-        #Colorblind
-        if mode[1] == 1:
-            # NORMAL MODE
-            if mode[0] == 1:
-                # Checks to see if its a word in the list
-                if (entered_word.lower() in FIVE_LETTER_WORDS):
-                    # Creates copies of the word and users word (as lists)
-                    word_copy = list(word[:])
-                    entered_word_copy = list(entered_word[:])
-
-                    # CORRECT COLOR
-                    for col, letter in enumerate(entered_word_copy):
-                        if (letter == word_copy[col]):
-                            gw.set_square_color(current_row, col, COLORBLIND_CORRECT_COLOR)
-                            gw.set_key_color(letter, COLORBLIND_CORRECT_COLOR)
-
-                            # Replaces letter with * to track multiple instances of the same letters
-                            word_copy[col] = '*'
-                            entered_word_copy[col] = '*'
-                    
-                    for col, letter in enumerate(entered_word_copy):
-                        # PRESENT COLOR
-                        if (letter in word_copy and letter != '*'):
-                            gw.set_square_color(current_row, col, PRESENT_COLOR)
-
-                            if (gw.get_key_color(letter) != COLORBLIND_CORRECT_COLOR):
-                                gw.set_key_color(letter, PRESENT_COLOR)
-
-                            # Exits the loop after this code once one letter is changed (for multiple instances of the same letters)
-                            exit_loop = False
-
-                            # Finds a match in the word and replaces with * (for multiple instances of the same letters)
-                            for col, char in enumerate(word_copy):
-                                if (char == letter and exit_loop == False):
-                                    word_copy[word_copy.index(letter)] = '*'
-                                    exit_loop = True
-
-                        # MISSING COLOR
-                        elif (letter != '*'):
-                            gw.set_square_color(current_row, col, MISSING_COLOR)
-                            if (gw.get_key_color(letter) != COLORBLIND_CORRECT_COLOR and gw.get_key_color(letter) != PRESENT_COLOR):
-                                gw.set_key_color(letter, MISSING_COLOR)
-                
-                    # Correct
-                    if (entered_word == word):
-                        gw.show_message("Congratulations! You guessed the word.")
-                            
-                    # Incorrect
-                    else:
-                        # Next guess
-                        if (current_row < N_ROWS - 1):
-                            current_row += 1
-                            gw.set_current_row(current_row)
-
-                        # No more guesses
-                        else:
-                            gw.show_message("Better luck next time! The word was: " + word.upper())
-
-                # Invalid word - try again
+                # Incorrect
                 else:
-                    gw.show_message("Not a valid word")
-                    current_row -= 1
-                    current_row += 1
-                    gw.set_current_row(current_row)
+                    # Next guess
+                    if (current_row < N_ROWS - 1):
+                        current_row += 1
+                        gw.set_current_row(current_row)
 
-            # HARD MODE
-            elif mode[0] == 2:
-                # Correct letters have to be used in the correct spot (after they've been found)
-                requirementsMet = True
-                requirementsMet = checkForLetters(entered_word, correct_letter_list, present_letter_list, requirementsMet)
-
-                # In word list and meets requirements
-                if (entered_word.lower() in FIVE_LETTER_WORDS and requirementsMet == True):
-                    # Creates copies of the word and users word (in lists)
-                    word_copy = list(word[:])
-                    entered_word_copy = list(entered_word[:])
-
-                    # CORRECT COLOR
-                    for col, letter in enumerate(entered_word_copy):
-                        if letter == word_copy[col]:
-                            gw.set_square_color(current_row, col, COLORBLIND_CORRECT_COLOR)
-                            gw.set_key_color(letter, COLORBLIND_CORRECT_COLOR)
-
-                            # Adds letter to correct letter list and removes from present_letter list if applicable
-                            correct_letter_list[col] = letter
-                            if (letter in present_letter_list):
-                                present_letter_list.remove(letter)
-
-                            # Replaces letter with * to track multiple instances of the same letters
-                            word_copy[col] = '*'
-                            entered_word_copy[col] = '*'
-                    
-                    for col, letter in enumerate(entered_word_copy):
-                        # PRESENT COLOR
-                        if letter in word_copy and letter != '*':
-                            gw.set_square_color(current_row, col, PRESENT_COLOR)
-                            if (gw.get_key_color(letter) != COLORBLIND_CORRECT_COLOR):
-                                gw.set_key_color(letter, PRESENT_COLOR)
-
-                            # Adds letter to present list if not already in it
-                            if (letter not in present_letter_list or (present_letter_list.count(letter) < (entered_word.count(letter) - correct_letter_list.count(letter)))):
-                                present_letter_list.append(letter)
-
-                            # Exits the loop after this code once one letter is changed (for multiple instances of the same letters)
-                            exit_loop = False
-
-                            # Finds a match in the word and replaces with * (for multiple instances of the same letters)
-                            for col, char in enumerate(word_copy):
-                                if (char == letter and exit_loop == False):
-                                    word_copy[word_copy.index(letter)] = '*'
-                                    exit_loop = True
-
-                        # MISSING COLOR
-                        elif letter != '*':
-                            gw.set_square_color(current_row, col, MISSING_COLOR)
-                            if (gw.get_key_color(letter) != COLORBLIND_CORRECT_COLOR and gw.get_key_color(letter) != PRESENT_COLOR):
-                                gw.set_key_color(letter, MISSING_COLOR)
-                
-                    # Correct
-                    if entered_word == word:
-                        gw.show_message("Congratulations! You guessed the word.")
-                            
-                    # Incorrect
+                    # No more guesses
                     else:
-                        # Next Guess
-                        if current_row < N_ROWS - 1:
-                            current_row += 1
-                            gw.set_current_row(current_row)
+                        gw.show_message("Better luck next time! The word was: " + word.upper())
+
+            # Invalid word - try again
+            else:
+                gw.show_message("Not a valid word")
+                current_row -= 1
+                current_row += 1
+                gw.set_current_row(current_row)
+
+        # HARD MODE
+        elif mode == 2:
+            # Correct letters have to be used in the correct spot (after they've been found)
+            requirementsMet = True
+            requirementsMet = checkForLetters(entered_word, correct_letter_list, present_letter_list, requirementsMet)
+
+            # In word list and meets requirements
+            if (entered_word.lower() in FIVE_LETTER_WORDS and requirementsMet == True):
+                # Creates copies of the word and users word (in lists)
+                word_copy = list(word[:])
+                entered_word_copy = list(entered_word[:])
+
+                # CORRECT COLOR
+                for col, letter in enumerate(entered_word_copy):
+                    if letter == word_copy[col]:
+                        gw.set_square_color(current_row, col, correct_color)
+                        gw.set_key_color(letter, correct_color)
+
+                        # Adds letter to correct letter list and removes from present_letter list if applicable
+                        correct_letter_list[col] = letter
+                        if (letter in present_letter_list):
+                            present_letter_list.remove(letter)
+
+                        # Replaces letter with * to track multiple instances of the same letters
+                        word_copy[col] = '*'
+                        entered_word_copy[col] = '*'
+                
+                for col, letter in enumerate(entered_word_copy):
+                    # PRESENT COLOR
+                    if letter in word_copy and letter != '*':
+                        gw.set_square_color(current_row, col, PRESENT_COLOR)
+                        if (gw.get_key_color(letter) != correct_color):
+                            gw.set_key_color(letter, PRESENT_COLOR)
+
+                        # Adds letter to present list if not already in it
+                        if (letter not in present_letter_list or (present_letter_list.count(letter) < (entered_word.count(letter) - correct_letter_list.count(letter)))):
+                            present_letter_list.append(letter)
+
+                        # Exits the loop after this code once one letter is changed (for multiple instances of the same letters)
+                        exit_loop = False
+
+                        # Finds a match in the word and replaces with * (for multiple instances of the same letters)
+                        for col, char in enumerate(word_copy):
+                            if (char == letter and exit_loop == False):
+                                word_copy[word_copy.index(letter)] = '*'
+                                exit_loop = True
+
+                    # MISSING COLOR
+                    elif letter != '*':
+                        gw.set_square_color(current_row, col, MISSING_COLOR)
+                        if (gw.get_key_color(letter) != correct_color and gw.get_key_color(letter) != PRESENT_COLOR):
+                            gw.set_key_color(letter, MISSING_COLOR)
+            
+                # Correct
+                if entered_word == word:
+                    gw.show_message("Congratulations! You guessed the word.")
                         
-                        # No More Guesses
-                        else:
-                            gw.show_message("Better luck next time! The word was: " + word.upper())
+                # Incorrect
+                else:
+                    # Next Guess
+                    if current_row < N_ROWS - 1:
+                        current_row += 1
+                        gw.set_current_row(current_row)
+                    
+                    # No More Guesses
+                    else:
+                        gw.show_message("Better luck next time! The word was: " + word.upper())
 
             # Invalid word / Requirements not met
             else:
@@ -348,9 +214,15 @@ def wordle(mode):
     gw._root.wait_window()
 
 if __name__ == "__main__":
+    correct_color = ''
     mode = show_radio_options()
-    if mode in [[1, 0], [2, 0], [1, 1], [2, 1]]:
-        wordle(mode)
+    if mode[0] in {1, 2}:
+        if mode[1] == 0:
+            correct_color = CORRECT_COLOR
+            wordle(mode[0])
+        elif mode[1] == 1:
+            correct_color = COLORBLIND_CORRECT_COLOR
+            wordle(int(mode[0]))
     root = tk.Tk()
     
     # Hide the root window
